@@ -16,6 +16,11 @@ module.exports = function(mongoose, Model, handleError) {
 
         return result.where('name').equals(name);
     };
+    placeSchema.statics.getPlaces = function(name) {
+        var result = this.find();
+
+        return result.where('name').equals(name);
+    };
 
     return mongoose.model("Place", placeSchema);
 }

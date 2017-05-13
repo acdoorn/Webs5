@@ -10,25 +10,16 @@ var places = [
 
 function getPlaces(req, res) {
     var query = {};
-    var result = places;
+    // Place.find({'name':req.query.name}, 'name', function(err, places) {
+    //     res.json(places)});
 
-    if (req.params.name) {
-        query.name = req.params.name;
-        //result = Place.find(query);
-
-        if (query.name) {
-            console.log("Filtering: ");
-            result = Place.whereName(result, req.query.name);
-            console.log("Filtered: ");
-            console.log(result);
-            console.log("----------");
-            console.log("----------");
-            console.log("----------");
-        }
-
+    if (req.query.name) {
+        console.log("Filtering on: " + req.query.name);
+        query.name = req.query.name
     }
 
-    res.json(result);
+
+    Place.find(query, function(err, places) { res.json(places)});
 }
 
 /* GET home page. */
