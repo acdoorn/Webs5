@@ -5,17 +5,13 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
 
-
 // error handler
-app.handleError = function(err, req, res, next) {
+app.handleError = function(req, res, code, err) {
     // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.message = err.message;
+    res.error = req.app.get('env') === 'development' ? err : {};
 
     // render the error page
     res.status(err.status || 500);
@@ -26,9 +22,9 @@ app.Mongoose = require('./config/database')();
 
 app.Model = {};
 app.Model.Place = require('./models/place')(app.Mongoose, app.Model, app.handleError);
-// app.Model.Waypoint = require('./models/waypoint')(app.Mongoose, app.Model, app.handleError);
-// app.Model.Race = require('./models/race')(app.Mongoose, app.Model, app.handleError);
-// app.Model.User = require('./models/user')(app.Mongoose, app.Model, app.handleError);
+app.Model.Waypoint = require('./models/waypoint')(app.Mongoose, app.Model, app.handleError);
+app.Model.Race = require('./models/race')(app.Mongoose, app.Model, app.handleError);
+app.Model.User = require('./models/user')(app.Mongoose, app.Model, app.handleError);
 // app.Model.TestData = require('./models/testData')(app.Model);
 
 // view engine setup
@@ -43,11 +39,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-var places = require('./routes/places')(app.Model, app.handleError);
-
-app.use('/', index);
-app.use('/users', users);
-app.use('/places', places);
+var routes = require('./routes/routes')(app.Model, app.handleError);
+app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,8 +48,6 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
-
 
 module.exports = app;
 

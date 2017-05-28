@@ -11,11 +11,11 @@ module.exports = function(mongoose, Model, handleError) {
             required: true
         }
     });
-    placeSchema.statics.whereName = function(name) {
-        var result = this.find();
-
-        return result.where('name').equals(name);
-    };
+    // placeSchema.statics.whereName = function(name) {
+    //     var result = this.find();
+    //
+    //     return result.where('name').equals(name);
+    // };
     placeSchema.statics.getPlaces = function(name) {
         var result = this.find();
 

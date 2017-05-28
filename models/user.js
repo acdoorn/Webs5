@@ -1,30 +1,27 @@
 /**
  * Created by Alexander on 18/4/2017.
  */
-var mongoose = require("mongoose");
+module.exports = function(mongoose, Model, handleError) {
+    var userSchema = new mongoose.Schema({
 
-console.log("Initializing user schema");
+        username: {
+            type: String,
+            required: true,
+            unique: true
+        },
+        password: {
+            type: String,
+            required: true,
+            select: false
+        },
+        role: {
+            type: String,
+            required: true,
+        }
+    });
 
-var userSchema = new mongoose.Schema({
-
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true,
-        select: false
-    },
-    role: {
-        type: String,
-        required: true,
-    }
-});
-
-mongoose.model("User", userSchema);
-
+    return mongoose.model("User", userSchema);
+}
 /*
  TODO: Create schema, voeg toe aan mongoose
  */
