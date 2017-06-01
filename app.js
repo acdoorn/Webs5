@@ -4,6 +4,9 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var handlebars = require('express-handlebars');
+var flash = require('connect-flash');
 
 var app = express();
 
@@ -25,11 +28,28 @@ app.Model.Place = require('./models/place')(app.Mongoose, app.Model, app.handleE
 app.Model.Waypoint = require('./models/waypoint')(app.Mongoose, app.Model, app.handleError);
 app.Model.Race = require('./models/race')(app.Mongoose, app.Model, app.handleError);
 app.Model.User = require('./models/user')(app.Mongoose, app.Model, app.handleError);
-// app.Model.TestData = require('./models/testData')(app.Model);
+app.Model.TestData = require('./models/testData')(app.Model);
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.setServer = function(server) {
+    this.Model.RaceWebsocket = require('./websocket/raceWebsocket')(server, this.HandleError, this.Model);
+};
+
+// Passport
+app.Passport = require('./auth/passport')(app.Model.User);
+// /Passport
+
+// Role based security
+app.Roles = require('./auth/connectroles')();
+// /Role based security
+
+// view engine
+app.set('views', path.join(__dirname, 'views/'));
+app.engine('handlebars', handlebars({
+    defaultLayout: 'main'
+}));
+app.set('view engine', 'handlebars');
+app.set('public', path.join(__dirname, 'public/'));
+// /view engine
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -39,12 +59,28 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-var routes = require('./routes/routes')(app.Model, app.handleError);
+// required for passport
+app.use(session({
+    resave: false,
+    saveUninitialized: false,
+    secret: 'thisisnosecretatallbutthatsokay'
+}));
+app.use(app.Passport.initialize());
+app.use(app.Passport.session());
+app.use(flash());
+// /required for passport
+
+// required for role based authorization
+app.use(app.Roles.middleware());
+// /required for role based authorization
+
+var routes = require('./routes/routes')(app.Model, app.Roles, app.Passport, app.handleError);
 app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  var err = [];
+  err.message = 'Not Found';
   err.status = 404;
   next(err);
 });

@@ -1,0 +1,1222 @@
+<div class="page-header text-center">
+	<h1>Race of Rest</h1>
+	<a href="/logout" class="btn btn-default btn-sm">Logout</a>
+</div>
+
+<div class="row">
+
+	<div class="col-sm-12">
+		<div role="tabpanel">
+		{{#if canAccessManagement}}
+		  <ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#races" aria-controls="races" role="tab" data-toggle="tab">Races</a></li>
+              <li role="presentation"><a href="#places" aria-controls="places" role="tab" data-toggle="tab">Places</a></li>
+              <li role="presentation"><a href="#users" aria-controls="users" role="tab" data-toggle="tab">Users</a></li>
+              <li role="presentation"><a href="#waypoints" aria-controls="waypoints" role="tab" data-toggle="tab">Waypoints</a></li>
+			<li role="presentation"><a href="#websocket" aria-controls="websocket" role="tab" data-toggle="tab">Websocket</a></li>
+		  </ul>
+		{{/if}}
+		<div class="tab-content">
+			{{#if canAccessManagement}}
+			<div role="tabpanel" class="tab-pane fade in active" id="races">
+				<h1>Management</h1>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="well">
+							<h2>Create a race</h2>
+							<form id="addraceform" method="POST" action="/races" class="form-horizontal">
+							<div class="alert alert-danger" role="alert" id="alert" style="display:none;"></div>
+							<div class="alert alert-success" role="alert" id="success" style="display:none;"></div>
+							  <div id="nameGroup" class="form-group">
+							    <label for="name" class="col-sm-3 control-label">Name</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="name" id="name" placeholder="Name">
+							    </div>
+							  </div>
+							  <div id="startGroup" class="form-group">
+							    <label for="inputPassword3" class="col-sm-3 control-label">Startdatetime</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="startdatetime" id="startdatetime" placeholder="Startdatetime">
+							    </div>
+							  </div>
+							  <div id="endGroup" class="form-group">
+							    <label for="enddatetime" class="col-sm-3 control-label">Enddatetime</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="enddatetime" id="enddatetime" placeholder="Enddatetime">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-4 col-sm-8">
+							      <button type="submit" class="btn btn-default">Create</button>
+							    </div>
+							  </div>
+							</form>
+						</div>
+					</div>
+                </div>
+
+                <div class="row">
+					<div class="col-sm-6">
+						<div class="well">
+							<h2>Select a race</h2>
+							<div class="form-horizontal">
+								<div class="form-group">
+									<div class="col-sm-offset-1 col-sm-10">
+										<select multiple class="form-control" id="raceslist"></select>
+									</div>
+								</div>
+							  <div class="form-group">
+								  <div class="col-sm-offset-4 col-sm-8">
+								      <button type="button" class="btn btn-danger" id="deleteracebtn" disabled="disabled">Delete</button>
+							      </div>
+							  </div>
+						  </div>
+						</div>
+					</div>
+
+					<div class="col-sm-6">
+						<div class="well">
+							<h2>Edit a race</h2>
+							<form id="editraceform" method="PUT" action="/races" class="form-horizontal">
+							<div class="alert alert-danger" role="alert" id="edit-alert" style="display:none;"></div>
+							<div class="alert alert-success" role="alert" id="edit-success" style="display:none;"></div>
+							  <div id="edit-nameGroup" class="form-group">
+							    <label for="edit-name" class="col-sm-3 control-label">Name</label>
+							    <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="name" id="edit-name" placeholder="Name">
+							    </div>
+							  </div>
+							  <div id="edit-startGroup" class="form-group">
+							    <label for="edit-startdatetime" class="col-sm-3 control-label">Startdatetime</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="startdatetime" id="edit-startdatetime" placeholder="Startdatetime">
+							    </div>
+							  </div>
+							  <div id="edit-endGroup" class="form-group">
+							    <label for="edit-enddatetime" class="col-sm-3 control-label">Enddatetime</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="enddatetime" id="edit-enddatetime" placeholder="Enddatetime">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-4 col-sm-8">
+							      <button type="submit" class="btn btn-default">Save</button>
+							    </div>
+							  </div>
+							</form>
+						</div>
+					</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="well">
+                            <h2>Competitors</h2>
+                            <div class="alert alert-danger" role="alert" id="competitorsdateerror" style="display:none;">Competitors can not be eddited after a race is completed.</div>
+                            <div class="form-horizontal row">
+                                <div class="col-sm-offset-1 col-sm-4">
+                                    <div class="form-group">
+                                        <select multiple id="competitorslist" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button id="addcompetitorbtn" class="btn btn-success" disabled="disabled"><i class="fa fa-arrow-left"></i></button>
+                                    <button id="deletecompetitorbtn" class="btn btn-danger" disabled="disabled"><i class="fa fa-arrow-right"></i></button>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select multiple id="non-competitorslist" class="form-control"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="well">
+                            <h2>Waypoints</h2>
+                            <div class="form-horizontal row">
+                                <div class="col-sm-offset-1 col-sm-4">
+                                    <div class="form-group">
+                                        <select multiple id="race-waypointslist" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button id="race-addwaypointbtn" class="btn btn-success" disabled="disabled"><i class="fa fa-arrow-left"></i></button>
+                                    <button id="race-deletewaypointbtn" class="btn btn-danger" disabled="disabled"><i class="fa fa-arrow-right"></i></button>
+                                </div>
+                                <div class="col-sm-4">
+                                    <select multiple id="race-non-waypointslist" class="form-control"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div role="tabpanel" class="tab-pane fade{{#unless canAccessManagement}} in active{{/unless}}" id="places">
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="well">
+							<h2>Create a place</h2>
+							<form id="addplaceform" method="POST" action="/places" class="form-horizontal">
+							<div class="alert alert-danger" role="alert" id="place-alert" style="display:none;"></div>
+							<div class="alert alert-success" role="alert" id="place-success" style="display:none;"></div>
+							  <div id="place-nameGroup" class="form-group">
+							    <label for="place-name" class="col-sm-3 control-label">Name</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="place-name" id="place-name" placeholder="Name">
+							    </div>
+							  </div>
+							  <div id="place-googleGroup" class="form-group">
+							    <label for="place-googleplaceid" class="col-sm-3 control-label">Googleplaceid</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="place-googleplaceid" id="place-googleplaceid" placeholder="Googleplaceid">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-4 col-sm-8">
+							      <button type="submit" class="btn btn-default">Create</button>
+							    </div>
+							  </div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="well">
+							<h2>Select a place</h2>
+							<div class="form-horizontal">
+								<div class="form-group">
+									<div class="col-sm-offset-1 col-sm-10">
+										<select multiple class="form-control" id="placeslist"></select>
+									</div>
+								</div>
+							  <div class="form-group">
+								  <div class="col-sm-offset-4 col-sm-8">
+								      <button type="button" class="btn btn-danger" id="deleteplacebtn" disabled="disabled">Delete</button>
+							      </div>
+							  </div>
+						  </div>
+						</div>
+					</div>
+
+					<div class="col-sm-6">
+						<div class="well">
+							<h2>Edit a place</h2>
+							<form id="editplaceform" method="PUT" action="/places" class="form-horizontal">
+							<div class="alert alert-danger" role="alert" id="place-edit-alert" style="display:none;"></div>
+							<div class="alert alert-success" role="alert" id="place-edit-success" style="display:none;"></div>
+							  <div id="place-edit-nameGroup" class="form-group">
+							    <label for="place-edit-name" class="col-sm-3 control-label">Name</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="name" id="place-edit-name" placeholder="Name">
+							    </div>
+							  </div>
+							  <div id="place-edit-googleGroup" class="form-group">
+							    <label for="place-edit-googleplaceid" class="col-sm-3 control-label">Googleplaceid</label>
+							    <div class="col-sm-9">
+							      <input type="text" class="form-control" name="place-edit-googleplaceid" id="place-edit-googleplaceid" placeholder="Googleplaceid">
+							    </div>
+							  </div>
+
+							  <div class="form-group">
+							    <div class="col-sm-offset-4 col-sm-8">
+							      <button type="submit" class="btn btn-default">Save</button>
+							    </div>
+							  </div>
+							</form>
+						</div>
+					</div>
+				</div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade{{#unless canAccessManagement}} in active{{/unless}}" id="users">
+
+                <div class="row">
+					<div class="col-sm-6">
+							<div class="well">
+								<h2>Create a user</h2>
+								<form id="adduserform" method="POST" action="/users" class="form-horizontal">
+								<div class="alert alert-danger" role="alert" id="user-alert" style="display:none;"></div>
+								<div class="alert alert-success" role="alert" id="user-success" style="display:none;"></div>
+								  <div id="user-nameGroup" class="form-group">
+								    <label for="user-name" class="col-sm-3 control-label">Username</label>
+								    <div class="col-sm-9">
+								      <input type="text" class="form-control" name="user-name" id="user-name" placeholder="Username">
+								    </div>
+								  </div>
+								  <div id="user-passwordGroup" class="form-group">
+								    <label for="user-password" class="col-sm-3 control-label">Password</label>
+								    <div class="col-sm-9">
+								      <input type="password" class="form-control" name="user-password" id="user-password" placeholder="Password">
+								    </div>
+								  </div>
+								   <div id="user-roleGroup" class="form-group">
+								      <label for="user-roles" class="col-sm-3 control-label">Roles</label>
+								      <div class="col-sm-9">
+									      <select multiple id="user-roles" class="form-control">
+									        <option>manager</option>
+									        <option>admin</option>
+									      </select>
+								      </div>
+								    </div>
+								  <div class="form-group">
+								    <div class="col-sm-offset-4 col-sm-8">
+								      <button type="submit" class="btn btn-default">Create</button>
+								    </div>
+								  </div>
+								</form>
+							</div>
+						</div>
+
+                </div>
+                    <div class="row">
+						<div class="col-sm-6">
+							<div class="well">
+								<h2>Select a user</h2>
+								<div class="form-horizontal">
+									<div class="form-group">
+										<div class="col-sm-offset-1 col-sm-10">
+											<select multiple class="form-control" id="userslist"></select>
+										</div>
+									</div>
+								  <div class="form-group">
+									  <div class="col-sm-offset-4 col-sm-8">
+									      <button type="button" class="btn btn-danger" id="deleteuserbtn" disabled="disabled">Delete</button>
+								      </div>
+								  </div>
+							  </div>
+							</div>
+						</div>
+
+						<div class="col-sm-6">
+							<div class="well">
+								<h2>Edit a user</h2>
+								<form id="edituserform" method="PUT" action="/users" class="form-horizontal">
+								<div class="alert alert-danger" role="alert" id="user-edit-alert" style="display:none;"></div>
+								<div class="alert alert-success" role="alert" id="user-edit-success" style="display:none;"></div>
+								  <div id="user-edit-nameGroup" class="form-group">
+								    <label for="user-edit-name" class="col-sm-3 control-label">Username</label>
+								    <div class="col-sm-9">
+								      <input type="text" class="form-control" name="user-edit-name" id="user-edit-name" placeholder="Username">
+								    </div>
+								  </div>
+								  <div id="user-edit-passwordGroup" class="form-group">
+								    <label for="user-edit-password" class="col-sm-3 control-label">Password</label>
+								    <div class="col-sm-9">
+								      <input type="password" class="form-control" name="user-edit-password" id="user-edit-password" placeholder="Password">
+								    </div>
+								  </div>
+								  <div id="user-edit-roleGroup" class="form-group">
+								      <label for="user-edit-roles" class="col-sm-3 control-label">Roles</label>
+								      <div class="col-sm-9">
+									      <select multiple id="user-edit-roles" class="form-control">
+									        <option>manager</option>
+									        <option>admin</option>
+									      </select>
+								      </div>
+								    </div>
+
+                                    <div id="user-edit-waypointGroup" class="form-group">
+                                        <label for="user-edit-waypoint" class="col-sm-3 control-label">Current waypoint</label>
+                                        <div class="col-sm-9">
+                                            <select multiple name="user-edit-waypoint" id="user-edit-waypoint" class="form-control"></select>
+                                        </div>
+                                    </div>
+								  <div class="form-group">
+								    <div class="col-sm-offset-4 col-sm-8">
+								      <button type="submit" class="btn btn-default">Save</button>
+								    </div>
+								  </div>
+								</form>
+							</div>
+						</div>
+                    </div>
+                </div>
+                    <div role="tabpanel" class="tab-pane fade{{#unless canAccessManagement}} in active{{/unless}}" id="waypoints">
+                    <div class="row">
+                    <div class="col-sm-6">
+							<div class="well">
+								<h2>Create a waypoint</h2>
+								<form id="addwaypointform" method="POST" action="/waypoints" class="form-horizontal">
+								<div class="alert alert-danger" role="alert" id="waypoint-alert" style="display:none;"></div>
+								<div class="alert alert-success" role="alert" id="waypoint-success" style="display:none;"></div>
+								  <div id="waypoint-nameGroup" class="form-group">
+								    <label for="waypoint-name" class="col-sm-3 control-label">Name</label>
+								    <div class="col-sm-9">
+								      <input type="text" class="form-control" name="waypoint-name" id="waypoint-name" placeholder="Name">
+								    </div>
+								  </div>
+								  <div id="waypoint-placeGroup" class="form-group">
+								    <label for="waypoint-place" class="col-sm-3 control-label">Place</label>
+								    <div class="col-sm-9">
+                                        <select multiple name="waypoint-place" id="waypoint-place" class="form-control"></select>
+								    </div>
+								  </div>
+								  
+								  <div class="form-group">
+								    <div class="col-sm-offset-4 col-sm-8">
+								      <button type="submit" class="btn btn-default">Create</button>
+								    </div>
+								  </div>
+								</form>
+							</div>
+						</div>
+                    </div>
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="well">
+								<h2>Select a waypoint</h2>
+								<div class="form-horizontal">
+									<div class="form-group">
+										<div class="col-sm-offset-1 col-sm-10">
+											<select multiple class="form-control" id="waypointslist"></select>
+										</div>
+									</div>
+								  <div class="form-group">
+									  <div class="col-sm-offset-4 col-sm-8">
+									      <button type="button" class="btn btn-danger" id="deletewaypointbtn" disabled="disabled">Delete</button>
+								      </div>
+								  </div>
+							  </div>
+							</div>
+						</div>
+
+						<div class="col-sm-6">
+							<div class="well">
+								<h2>Edit a waypoint</h2>
+								<form id="editwaypointform" method="PUT" action="/waypoints" class="form-horizontal">
+									<div class="alert alert-danger" role="alert" id="waypoint-edit-alert" style="display:none;"></div>
+									<div class="alert alert-success" role="alert" id="waypoint-edit-success" style="display:none;"></div>
+									<div id="waypoint-edit-nameGroup" class="form-group">
+										<label for="waypoint-edit-name" class="col-sm-3 control-label">Name</label>
+										<div class="col-sm-9">
+											<input type="text" class="form-control" name="waypoint-edit-name" id="waypoint-edit-name" placeholder="Name">
+										</div>
+									</div>
+									<div id="waypoint-edit-placeGroup" class="form-group">
+										<label for="waypoint-edit-place" class="col-sm-3 control-label">Place</label>
+										<div class="col-sm-9">
+                                            <select multiple name="waypoint-edit-place" id="waypoint-edit-place" class="form-control"></select>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-sm-offset-4 col-sm-8">
+											<button type="submit" class="btn btn-default">Save</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				{{/if}}
+				<div role="tabpanel" class="tab-pane fade{{#unless canAccessManagement}} in active{{/unless}}" id="websocket">
+					<h1>Websocket</h1>
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="well">
+								<h2>Select a race to watch</h2>
+								<div class="form-horizontal">
+									<div class="form-group">
+										<div class="col-sm-offset-1 col-sm-10">
+											<select multiple class="form-control" id="websocket-races"></select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-sm-6">
+							<div class="well">
+								<h2>Race messages</h2>
+								<div class="form-horizontal">
+									<div class="form-group">
+										<div class="col-sm-offset-1 col-sm-10">
+											<textarea id="websocket-messages" rows="4" cols="50" class="form-control"></textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		 	</div>
+		</div>
+	</div>
+</div>
+{{#if canAccessManagement}}
+<script>
+$('#management a').click(function (e) {
+	e.preventDefault();
+	$(this).tab('show');
+});
+
+$('#websocket a').click(function (e) {
+	e.preventDefault();
+	$(this).tab('show');
+});
+
+var editRaceName, editPlaceName, editUserName, editWaypointName, selectedRaceName;
+
+var waypointInRace = function(waypointName) {
+    var returnVal = false;
+    waypointRaces.forEach(function (waypointName2) {
+        if (waypointName2 === waypointName) {
+            returnVal = true;
+        }
+    });
+    return returnVal;
+}
+
+/*start list change functions*/
+$("#raceslist").change(function ()
+{
+    if($("#raceslist").val() != null) {
+
+        selectedRaceName = $("#raceslist").val();
+    }
+	$("#deleteracebtn").attr("disabled", null);
+
+	$.get("/races/" + selectedRaceName)
+	.done(function (raceData)
+	{
+		if (raceData && raceData[0])
+		{
+			raceData = raceData[0];
+
+			editRaceName = raceData.name;
+			$("#edit-name").val(editRaceName);
+			$("#edit-startdatetime").val(raceData.startdate);
+			$("#edit-enddatetime").val(raceData.enddate);
+
+            var allUsers = [];
+            var allWaypoints = [];
+			var index;
+
+			$("#competitorslist").html('');
+			$("#non-competitorslist").html('');
+			$("#addcompetitorbtn").attr("disabled", "disabled");
+			$("#deletecompetitorbtn").attr("disabled", "disabled");
+
+            $("#race-waypointslist").html('');
+            $("#race-non-waypointslist").html('');
+            $("#race-addwaypointbtn").attr("disabled", "disabled");
+            $("#race-deletewaypointbtn").attr("disabled", "disabled");
+
+			$("#userslist option").each(function () {allUsers.push($(this).val()); });
+            $("#waypointslist option").each(function () {allWaypoints.push($(this).val()); });
+
+			raceData.competitors.forEach(function (competitor)
+			{
+				var username = competitor.username;
+
+				$("#competitorslist").append("<option>" + username + "</option>");
+
+				index 														= allUsers.indexOf(username);
+
+				if (index >= 0) 											{ allUsers.splice(index, 1); }
+			});
+
+			index = 0;
+            raceData.waypoints.forEach(function (waypoint)
+            {
+                var name = waypoint.name;
+
+                $("#race-waypointslist").append("<option>" + name + "</option>");
+
+                index 														= allWaypoints.indexOf(name);
+
+                if (index >= 0) 											{ allWaypoints.splice(index, 1); }
+            });
+
+			allUsers.forEach(function (username) { $("#non-competitorslist").append("<option>" + username + "</option>"); });
+            allWaypoints.forEach(function (waypointName) {
+                if(!waypointInRace(waypointName)) {
+                    $("#race-non-waypointslist").append("<option>" + waypointName + "</option>");
+                }
+
+            });
+			if (new Date(raceData.enddatetime) < new Date())
+			{
+				$("#competitorsdateerror").fadeIn();
+				$("#competitorslist").attr("disabled", "disabled");
+				$("#non-competitorslist").attr("disabled", "disabled");
+			}
+			else
+			{
+				$("#competitorsdateerror").fadeOut();
+				$("#competitorslist").attr("disabled", null);
+				$("#non-competitorslist").attr("disabled", null);
+			}
+		}
+	});
+});
+
+$("#competitorslist").change(function ()
+{
+	$("#deletecompetitorbtn").attr("disabled", null);
+});
+
+$("#non-competitorslist").change(function ()
+{
+	$("#addcompetitorbtn").attr("disabled", null);
+});
+
+$("#race-waypointslist").change(function ()
+{
+    $("#race-deletewaypointbtn").attr("disabled", null);
+});
+
+$("#race-non-waypointslist").change(function ()
+{
+    $("#race-addwaypointbtn").attr("disabled", null);
+});
+
+$("#placeslist").change(function ()
+{
+	$("#deleteplacebtn").attr("disabled", null);
+	$.get("/places/" + $("#placeslist").val())
+	.done(function (placeData)
+	{
+		if (placeData && placeData[0])
+		{
+			placeData = placeData[0];
+
+			editPlaceName = placeData.name;
+			$("#place-edit-name").val(editPlaceName);
+			$("#place-edit-googleplaceid").val(placeData.googleplaceid);
+		}
+	});
+});
+
+$("#userslist").change(function ()
+{
+	$("#deleteuserbtn").attr("disabled", null);
+
+	$.get("/users/" + $("#userslist").val())
+	.done(function (userData)
+	{
+		if (userData && userData[0])
+		{
+			userData = userData[0];
+
+			editUserName = userData.username;
+			$("#user-edit-name").val(editUserName);
+			$("#user-edit-password").val('');
+			$("#user-edit-roles").val(userData.roles);
+		}
+	});
+});
+
+$("#waypointslist").change(function ()
+{
+	$("#deletewaypointbtn").attr("disabled", null);
+
+	$.get("/waypoints/" + $("#waypointslist").val())
+	.done(function (waypointData)
+	{
+		if (waypointData && waypointData[0])
+		{
+            waypointData 			= waypointData[0];
+			editWaypointName 		= waypointData.name;
+
+			$("#waypoint-edit-name").val(editWaypointName);
+			$("#waypoint-edit-place").val(waypointData.place.name);
+		}
+	});
+});
+
+/*end list change functions*/
+
+/*start competitor buttons*/
+
+$("#addcompetitorbtn").on('click', function ()
+{
+	$.post("/races/" + editRaceName + "/competitors", {username: $("#non-competitorslist").val()[0] }
+	).always(function ()
+	{
+		$("#raceslist").trigger("change");
+	});
+});
+
+$("#deletecompetitorbtn").on('click', function ()
+{
+	$.ajax({
+		url: "/races/" + editRaceName + "/competitors/" + $("#competitorslist").val()[0],
+	 	type: 'DELETE'}
+	).always(function ()
+	{
+		$("#raceslist").trigger("change");
+		reloadAll();
+	});
+});
+
+/*end competitor buttons*/
+
+/*start race-waypoint buttons*/
+
+$("#race-addwaypointbtn").on('click', function ()
+{
+    $.post("/races/" + editRaceName + "/waypoints", {name: $("#race-non-waypointslist").val()[0] }
+    ).always(function ()
+    {
+        $("#raceslist").trigger("change");
+    });
+});
+
+$("#race-deletewaypointbtn").on('click', function ()
+{
+    $.ajax({
+        url: "/races/" + editRaceName + "/waypoints/" + $("#race-waypointslist").val()[0],
+        type: 'DELETE'}
+    ).always(function ()
+    {
+        $("#raceslist").trigger("change");
+        reloadAll();
+    });
+});
+/*end race-waypoint buttons*/
+
+/*start reload functions*/
+function reloadRaces ()
+{
+	$("#deleteracebtn").attr("disabled", "disabled");
+
+	$.get("/races")
+	.done(function (races)
+	{
+		$("#raceslist").html("");
+        $("#websocket-races").html("");
+		races.forEach(function (race) 	{
+		    var appendValue = "<option>" + race.name + "</option>";
+		    $("#raceslist").append(appendValue);
+
+            $("#websocket-races").append('<option value="' + race.name + '">' + race.name + '</option>');
+		});
+
+	});
+};
+
+function reloadPlaces ()
+{
+	$("#deleteplacebtn").attr("disabled", "disabled");
+
+	$.get("/places")
+	.done(function (places)
+	{
+		$("#placeslist").html("");
+        $("#waypoint-place").html("");
+        $("#waypoint-edit-place").html("");
+		places.forEach(function (place) 	{
+
+            var appendValue = "<option>" + place.name + "</option>";
+		    $("#placeslist").append(appendValue);
+            $("#waypoint-place").append(appendValue);
+            $("#waypoint-edit-place").append(appendValue);
+		});
+	});
+};
+
+function reloadUsers ()
+{
+	$("#deleteuserbtn").attr("disabled", "disabled");
+
+	$.get("/users?pageIndex=0&pageSize=1000")
+	.done(function (users)
+	{
+		$("#userslist").html("");
+		users.forEach(function (user) 	{ $("#userslist").append("<option>" + user.username + "</option>"); });
+	});
+};
+
+var waypointRaces = [];
+
+function reloadWaypoints ()
+{
+	$("#deletewaypointbtn").attr("disabled", "disabled");
+
+	$.get("/waypoints")
+	.done(function (waypoints)
+	{
+		$("#waypointslist").html("");
+		$("#user-edit-waypoint").html("");
+		waypoints.forEach(function (waypoint) 	{
+		    if(waypoint.race) {
+                waypointRaces.push(waypoint.name);
+            }
+		    $("#waypointslist").append("<option>" + waypoint.name + "</option>");
+            $("#user-edit-waypoint").append("<option>" + waypoint.name + "</option>");
+		});
+	});
+};
+
+function reloadAll ()
+{
+	setTimeout(reloadRaces(), 0);
+	setTimeout(reloadPlaces(), 0);
+	setTimeout(reloadUsers(), 0);
+	setTimeout(reloadWaypoints(), 0);
+};
+
+/*end reload functions*/
+
+/*start race functions*/
+
+$("#addraceform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#alert").html("").fadeOut();
+	$("#success").html("").fadeOut();
+	$("#nameGroup").removeClass("has-error");
+	$("#startGroup").removeClass("has-error");
+	$("#endGroup").removeClass("has-error");
+
+	if ($("#name").val().length === 0) { $("#nameGroup").addClass("has-error"); return; }
+	if ($("#startdatetime").val().length === 0) { $("#startGroup").addClass("has-error"); return; }
+	if ($("#enddatetime").val().length === 0) { $("#endGroup").addClass("has-error"); return; }
+
+	var startDatetime 	= new Date(moment($("#startdatetime").val(), "DD-MM-YYYY HH:mm"));
+	var endDatetime 	= new Date(moment($("#enddatetime").val(), "DD-MM-YYYY HH:mm"));
+
+	if (startDatetime < new Date())
+	{
+		$("#alert").html("The startdatetime can not be in the past.").fadeIn();
+		return;
+	}
+
+	if (endDatetime < new Date())
+	{
+		$("#alert").html("The enddatetime can not be in the past.").fadeIn();
+		return;
+	}
+
+	$.post("/races", {"name": $("#name").val(), "startdate": startDatetime, "enddate": endDatetime}
+	).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#alert").html(data).fadeIn();
+		}
+		else
+		{
+			$("#name").val('');
+			$("#startdatetime").val('');
+			$("#enddatetime").val('');
+			$("#success").html("The race is created.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+$("#editraceform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#edit-alert").html("").fadeOut();
+	$("#edit-success").html("").fadeOut();
+	$("#edit-nameGroup").removeClass("has-error");
+	$("#edit-startGroup").removeClass("has-error");
+	$("#edit-endGroup").removeClass("has-error");
+
+	if ($("#edit-name").val().length === 0) { $("#edit-nameGroup").addClass("has-error"); return; }
+	if ($("#edit-startdatetime").val().length === 0) { $("#edit-startGroup").addClass("has-error"); return; }
+	if ($("#edit-enddatetime").val().length === 0) { $("#edit-endGroup").addClass("has-error"); return; }
+
+	var edditingRaceName = $("#edit-name").val();
+	var startDatetime 	= new Date(moment($("#edit-startdatetime").val(), "DD-MM-YYYY HH:mm"));
+	var endDatetime 	= new Date(moment($("#edit-enddatetime").val(), "DD-MM-YYYY HH:mm"));
+
+	if (!editRaceName)
+	{
+		$("#edit-alert").html("There is no race selected to edit.").fadeIn().fadeOut(3000);
+		return;
+	}
+
+	$.ajax({
+		url: "/races/" + editRaceName,
+		type: 'PUT',
+		data: {"name": edditingRaceName, "startdate": startDatetime, "enddate": endDatetime}
+	}).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#edit-alert").html(data).fadeIn().fadeOut(3000);
+		}
+		else
+		{
+			editRaceName = edditingRaceName;
+			$("#edit-success").html("The race is saved.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#edit-alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+$("#deleteracebtn").on("click", function ()
+{
+	$.ajax({
+    url: "/races/" + $("#raceslist option:selected").html(),
+    type: "DELETE",
+    success: function (result)
+    	{ 
+    		editRaceName = null;
+    		reloadAll();
+    	}
+	});
+});
+
+/*end race functions*/
+
+/*start user functions*/
+
+$("#adduserform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#user-alert").html("").fadeOut();
+	$("#user-success").html("").fadeOut();
+	$("#user-nameGroup").removeClass("has-error");
+	$("#puser-passwordGroup").removeClass("has-error");
+
+	if ($("#user-name").val().length === 0) { $("#user-nameGroup").addClass("has-error"); return; }
+	if ($("#user-password").val().length === 0) { $("#user-passwordGroup").addClass("has-error"); return; }
+
+	$.post("/users", {"username": $("#user-name").val(), "password": $("#user-password").val(), "roles": $("#user-roles").val().join(",")}
+	).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#user-alert").html(data).fadeIn();
+		}
+		else
+		{
+			$("#user-name").val('');
+			$("#user-password").val('');
+			$("#user-roles").val('');
+			$("#user-success").html("The user is created.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#user-alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+$("#edituserform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#user-edit-alert").html("").fadeOut();
+	$("#user-edit-success").html("").fadeOut();
+	$("#user-edit-nameGroup").removeClass("has-error");
+
+	if ($("#user-edit-name").val().length === 0) { $("#user-edit-nameGroup").addClass("has-error"); return; }
+	
+	var edditingUserName = $("#user-edit-name").val();
+
+	if (!editUserName)
+	{
+		$("#user-edit-alert").html("There is no user selected to edit.").fadeIn().fadeOut(3000);
+		return;
+	}
+
+	var dataObject 										= { username: edditingUserName, roles: "" };
+
+	if ($("#user-edit-password").val().length > 0)		{ dataObject.password 	= $("#user-edit-password").val(); 			}
+	if ($("#user-edit-roles").val())					{ dataObject.roles 		= $("#user-edit-roles").val().join(","); 	}
+    if ($("#user-edit-waypoint").val())					{ dataObject.waypoint 		= $("#user-edit-waypoint").val().join(","); 	}
+
+	$.ajax({
+		url: "/users/" + editUserName,
+		type: 'PUT',
+		data: dataObject
+	}).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#user-edit-alert").html(data).fadeIn().fadeOut(3000);
+		}
+		else
+		{
+			editUserName 								= edditingUserName;
+			$("#user-edit-success").html("The user is saved.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#user-edit-alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+
+$("#deleteuserbtn").on("click", function ()
+{
+	$.ajax({
+    url: "/users/" + $("#userslist option:selected").html(),
+    type: "DELETE",
+    success: function (result)
+	    {
+	    	editUserName = null;
+	    	reloadAll();
+	    }
+	});
+});
+
+/*end user functions*/
+
+/*start place functions*/
+
+$("#addplaceform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#place-alert").html("").fadeOut();
+	$("#place-success").html("").fadeOut();
+	$("#place-nameGroup").removeClass("has-error");
+	$("#place-googleGroup").removeClass("has-error");
+
+	if ($("#place-name").val().length === 0) { $("#place-nameGroup").addClass("has-error"); return; }
+	if ($("#place-googleplaceid").val().length === 0) { $("#place-googleGroup").addClass("has-error"); return; }
+
+	$.post("/places", {"name": $("#place-name").val(), "googleplaceid": $("#place-googleplaceid").val()}
+	).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#place-alert").html(data).fadeIn();
+		}
+		else
+		{
+			$("#place-name").val('');
+			$("#place-googleplaceid").val('');
+			$("#place-success").html("The place is created.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#place-alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+$("#editplaceform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#place-edit-alert").html("").fadeOut();
+	$("#place-edit-success").html("").fadeOut();
+	$("#place-edit-nameGroup").removeClass("has-error");
+	$("#place-edit-googleGroup").removeClass("has-error");
+
+	if ($("#place-edit-name").val().length === 0) { $("#place-edit-nameGroup").addClass("has-error"); return; }
+	if ($("#place-edit-googleplaceid").val().length === 0) { $("#place-edit-googleGroup").addClass("has-error"); return; }
+
+	var edditingPlaceName = $("#place-edit-name").val();
+
+	if (!editPlaceName)
+	{
+		$("#place-edit-alert").html("There is no place selected to edit.").fadeIn().fadeOut(3000);
+		return;
+	}
+
+	$.ajax({
+		url: "/places/" + editPlaceName,
+		type: 'PUT',
+		data: {"name": edditingPlaceName, "googleplaceid": $("#place-edit-googleplaceid").val() }
+	}).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#place-edit-alert").html(data).fadeIn().fadeOut(3000);
+		}
+		else
+		{
+			editPlaceName = edditingPlaceName;
+			$("#place-edit-success").html("The place is saved.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#place-edit-alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+$("#deleteplacebtn").on("click", function ()
+{
+	var selectedPlaceName 		= $("#placeslist option:selected").html();
+
+	$.ajax({
+    url: "/places/" + selectedPlaceName,
+    type: "DELETE",
+    success: function (result)
+    {
+        editPlaceName = null;
+        reloadAll();
+    }
+	});
+});
+
+/*end place functions*/
+
+/*start waypoint functions*/
+
+$("#addwaypointform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#waypoint-alert").html("").fadeOut();
+	$("#waypoint-success").html("").fadeOut();
+	$("#waypoint-nameGroup").removeClass("has-error");
+	$("#waypoint-raceGroup").removeClass("has-error");
+	$("#waypoint-placeGroup").removeClass("has-error");
+
+	if ($("#waypoint-name").val().length === 0) { $("#waypoint-nameGroup").addClass("has-error"); return; }
+	if ($("#waypoint-race").val().length === 0) { $("#waypoint-raceGroup").addClass("has-error"); return; }
+	if ($("#waypoint-place").val().length === 0) { $("#waypoint-placeGroup").addClass("has-error"); return; }
+
+	$.post("/waypoints", {"name": $("#waypoint-name").val(), "race": $("#waypoint-race").val(), "place": $("#waypoint-place").val()}
+	).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#waypoint-alert").html(data).fadeIn();
+		}
+		else
+		{
+			$("#waypoint-name").val('');
+			$("#waypoint-race").val('');
+			$("#waypoint-place").val('');
+			$("#waypoint-success").html("The waypoint is created.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#waypoint-alert").html(status.responseJSON).fadeIn();
+	});
+});
+
+$("#editwaypointform").submit(function ()
+{
+	event.preventDefault();
+
+	$("#waypoint-edit-alert").html("").fadeOut();
+	$("#waypoint-edit-success").html("").fadeOut();
+	$("#waypoint-edit-nameGroup").removeClass("has-error");
+	$("#waypoint-edit-raceGroup").removeClass("has-error");
+	$("#waypoint-edit-placeGroup").removeClass("has-error");
+
+	if ($("#waypoint-edit-name").val().length === 0) { $("#waypoint-edit-nameGroup").addClass("has-error"); return; }
+	if ($("#waypoint-edit-race").val().length === 0) { $("#waypoint-edit-raceGroup").addClass("has-error"); return; }
+	if ($("#waypoint-edit-place").val().length === 0) { $("#waypoint-edit-placeGroup").addClass("has-error"); return; }
+
+	var editingWaypointName = $("#waypoint-edit-name").val();
+
+	if (!editWaypointName)
+	{
+		$("#waypoint-edit-alert").html("There is no waypoint selected to edit.").fadeIn().fadeOut(3000);
+		return;
+	}
+
+	$.ajax({
+		url: "/waypoints/" + editWaypointName,
+		type: 'PUT',
+		data: {"name": editingWaypointName, "race": $("#waypoint-edit-race").val(), "place": $("#waypoint-edit-place").val() }
+	}).done(function (data)
+	{
+		if (typeof data == "string")
+		{
+			$("#waypoint-edit-alert").html(data).fadeIn().fadeOut(3000);
+		}
+		else
+		{
+			editWaypointName = editingWaypointName;
+			$("#waypoint-edit-success").html("The waypoint is saved.").fadeIn().fadeOut(3000);
+			reloadAll();
+		}
+	}).fail(function (status)
+	{
+		$("#waypoint-edit-alert").html(status.responseJSON).fadeIn();
+	});;
+});
+
+$("#deletewaypointbtn").on("click", function ()
+{
+	var selectedWaypointName 		= $("#waypointslist option:selected").html();
+
+	$.ajax({
+    url: "/waypoints/" + selectedWaypointName,
+    type: "DELETE",
+    success: function (result)
+    {
+        editWaypointName = null;
+        reloadAll();
+    }
+	});
+});
+
+/*end waypoint functions*/
+
+/*start datepicker functions*/
+
+var datetimepickeroptions = {
+								lang:'nl',
+								format:'d-m-Y H:i',
+								formatTime:'H:i',
+								formatDate:'d.m.Y'
+							};
+
+$("#startdatetime").datetimepicker(datetimepickeroptions);
+$("#enddatetime").datetimepicker(datetimepickeroptions);
+$("#edit-startdatetime").datetimepicker(datetimepickeroptions);
+$("#edit-enddatetime").datetimepicker(datetimepickeroptions);
+$("#tag-datetime").datetimepicker(datetimepickeroptions);
+$("#tag-edit-datetime").datetimepicker(datetimepickeroptions);
+
+/*end datepicker functions*/
+
+reloadAll();
+</script>
+{{/if}}
+<script>
+$(function()
+{
+	var raceSocket 											= io('/races');
+	var currentRace;
+
+	raceSocket.on('races', function (races)
+	{
+		races 												= JSON.parse(races);
+
+        console.log(races);
+		$("#websocket-races").html("");
+
+		for (var i = 0; i < races.length; i++)				{ $("#websocket-races").append('<option value="' + races[i] + '">' + races[i] + '</option>'); }
+
+		$("#websocket-races").scrollTop($("#websocket-races")[0].scrollHeight);
+	});
+
+	var addMessage											= function (message)
+	{
+		if ($("#websocket-messages").html().length > 0) 	{ $("#websocket-messages").append('\n'); }
+
+		$("#websocket-messages").append(message).scrollTop($("#websocket-messages")[0].scrollHeight);
+	};
+
+	raceSocket.on('message', function (message)				{ addMessage(message); });
+
+	$("#websocket-races").change(function ()
+	{
+		var tempRace 										= $("#websocket-races option:selected").val();
+	
+		if (currentRace && currentRace === tempRace) 		{ return; }
+
+		currentRace 										= tempRace;
+
+		raceSocket.emit("enter race", currentRace);
+	});
+
+});
+</script>

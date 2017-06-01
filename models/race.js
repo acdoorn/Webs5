@@ -48,7 +48,40 @@ module.exports = function(mongoose, Model, handleError) {
         if (raceschema.waypoints.size > 0) {
             raceSchema.waypoints.delete(waypoint);
         }
-    }
+    };
+
+    raceSchema.statics.filterOnStartdate = function(result, startdate) {
+        if (!result) {
+            result = this.find();
+        }
+
+        return result.where('startdate').equals(new Date(startdate));
+    };
+
+    raceSchema.statics.filterOnEnddate = function(result, enddate) {
+        if (!result) {
+            result = this.find();
+        }
+
+        return result.where('enddate').equals(new Date(enddate));
+    };
+
+    raceSchema.pre('remove', function(next) {
+        Model.Waypoint.find({
+            race: this._id
+        }).exec(function(err, waypoints) {
+            if (err) {
+                next(err);
+            }
+
+            waypoints.forEach(function(waypoint) {
+                waypoint.remove();
+            });
+
+            next();
+        });
+    });
+
     return mongoose.model("Race", raceSchema);
 }
 

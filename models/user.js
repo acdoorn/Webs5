@@ -1,6 +1,8 @@
 /**
  * Created by Alexander on 18/4/2017.
  */
+var bcrypt = require('bcrypt-nodejs');
+var _ = require('underscore');
 module.exports = function(mongoose, Model, handleError) {
     var userSchema = new mongoose.Schema({
 
@@ -16,9 +18,42 @@ module.exports = function(mongoose, Model, handleError) {
         },
         role: {
             type: String,
-            required: true,
+            required: false,
+        },
+        waypoint: {// used for verifying where user is located in the current race, null if didn't check in yet
+            type: mongoose.Schema.ObjectId,
+            required: false,
+            ref: 'Waypoint'
         }
     });
+
+
+    userSchema.methods.generateHash = function(password) {
+        return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+    };
+
+    userSchema.methods.validPassword = function(password) {
+        return bcrypt.compareSync(password, this.password);
+    };
+
+    userSchema.methods.hasRole = function(roles) {
+        var returnVal = false;
+        if(roles) {
+            if (!Array.isArray(roles)) {
+                roles = [roles];
+            }
+            if (this.role) {
+                var lowerCaseRole = this.role.toLowerCase();
+
+                roles.forEach(function (role) {
+                    if (lowerCaseRole === role.toLowerCase()) {
+                        returnVal = true;
+                    }
+                });
+            }
+        }
+        return returnVal;
+    };
 
     return mongoose.model("User", userSchema);
 }

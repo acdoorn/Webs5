@@ -20,7 +20,7 @@ module.exports = function(mongoose, Model, handleError) {
         },
         race: {// used for verifying order in the current race
             type: mongoose.Schema.ObjectId,
-            required: true,
+            required: false,
             ref: 'Race'
         }
     });
